@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#3A2318">
 <title>Notre mariage</title>
 <meta name="description" content="Invitation à notre mariage">
@@ -27,6 +28,15 @@
 
 <div id="verif" class="verif" hidden>
   <div><p class="petit" id="vEtat">Invitation valide</p><h3 id="vNom"></h3><p id="vInfos"></p><p id="vTel"></p>
+  <p id="vStatut" class="statut" hidden></p>
+  <div id="vAction" hidden><button class="btn" id="vValider" type="button">Accueil : valider l’entrée</button></div>
+  <form id="vLogin" hidden novalidate>
+    <input id="vMail" type="email" placeholder="E-mail de l’accueil" autocomplete="username">
+    <input id="vMdp" type="password" placeholder="Mot de passe" autocomplete="current-password">
+    <button class="btn" type="submit">Se connecter</button>
+  </form>
+  <p id="vErr" role="alert"></p>
+  <button class="btn btn-clair" id="vQr" type="button" hidden>Afficher mon code QR</button>
   <button class="btn btn-clair" id="vOk" type="button">Voir le site</button></div>
 </div>
 
@@ -65,17 +75,23 @@
     <p class="centre rev">Merci de nous répondre avant le <strong id="limite"></strong>.</p>
     <p class="centre rev" id="repP"><button class="btn" id="rep" type="button" aria-expanded="false" aria-controls="boite">Je confirme ma présence</button></p>
     <p class="centre" id="clos" hidden>Les réponses sont closes. Merci !</p>
+    <p class="centre" id="sans" hidden></p>
     <div id="boite" hidden>
       <form id="form" novalidate>
+        <div class="hp" aria-hidden="true"><label>Site web<input name="web" tabindex="-1" autocomplete="off"></label></div>
+        <p id="salut" class="salut"></p>
+        <div id="champs">
         <label>Nom<input name="nom" autocomplete="family-name" required></label>
         <label>Post-nom<input name="post" autocomplete="additional-name" required></label>
         <label>Numéro de téléphone<input name="tel" type="tel" inputmode="tel" autocomplete="tel" required></label>
         <label>Vous êtes<select name="cote" id="cote" required></select></label>
+        </div>
         <fieldset><legend>Serez-vous présent(e) ?</legend>
           <div class="choix">
             <label><input type="radio" name="pres" value="oui"><span>Oui</span></label>
             <label><input type="radio" name="pres" value="non"><span>Non</span></label>
           </div></fieldset>
+        <p id="conf" class="conf"></p>
         <p id="err" role="alert"></p>
         <button class="btn" type="submit">Obtenir mon invitation</button>
       </form>

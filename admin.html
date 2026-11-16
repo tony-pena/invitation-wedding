@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Espace administrateur</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:wght@400;500&family=Cinzel:wght@400;500&family=Jost:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<section id="login" class="login">
+  <form id="lf" novalidate>
+    <p class="petit">Espace administrateur</p><h1 id="lt"></h1>
+    <input id="mail" type="email" placeholder="E-mail administrateur" autocomplete="username">
+    <input id="mdp" type="password" placeholder="Mot de passe" autocomplete="current-password">
+    <p id="lerr" role="alert"></p>
+    <button class="btn" type="submit">Se connecter</button>
+  </form>
+</section>
+
+<div id="app" hidden>
+  <header class="top">
+    <div><b id="ttl"></b><span id="sous"></span></div>
+    <div class="actions"><button id="add" class="b2">Ajouter un invité</button><button id="maj" class="b2">Actualiser</button><button id="csv" class="b2">Exporter (Excel)</button><button id="out" class="b2">Déconnexion</button></div>
+  </header>
+  <main class="wrap">
+    <section class="kpis">
+      <div class="card kpi"><small>Invités inscrits</small><b id="kT">0</b></div>
+      <div class="card kpi v"><small>Présents confirmés</small><b id="kO">0</b></div>
+      <div class="card kpi r"><small>Absents</small><b id="kN">0</b></div>
+      <div class="card kpi"><small>Sans réponse</small><b id="kA">0</b></div>
+      <div class="card kpi"><small>Déjà entrés</small><b id="kE">0</b><small id="kEs"></small><div class="barre"><i id="kEb"></i></div></div>
+    </section>
+    <section class="graphs">
+      <div class="card"><h2>PRÉSENCES</h2><div class="donut" id="donut"></div></div>
+      <div class="card"><h2>PRÉSENTS PAR CÔTÉ</h2><div id="cotes"></div></div>
+      <div class="card"><h2>INSCRIPTIONS (14 DERNIERS JOURS)</h2><div class="jours" id="jours"></div></div>
+    </section>
+    <section class="card" id="ajout" hidden><h2>AJOUTER UN INVITÉ</h2>
+      <form id="af" class="af" novalidate><input id="an" placeholder="Nom"><input id="ap" placeholder="Post-nom"><input id="at" type="tel" placeholder="Téléphone"><select id="ac"></select><button class="btn" type="submit">Ajouter</button></form>
+      <details class="imp"><summary>Importer plusieurs invités d’un coup</summary><p class="nb" id="impAide"></p>
+        <textarea id="imp" rows="6" placeholder="Nom;Post-nom;Téléphone;N° du côté"></textarea><button id="impBtn" class="b2" type="button">Importer</button></details>
+      <p id="aerr" role="alert" class="nb"></p></section>
+    <section class="card">
+      <h2>LISTE DES INVITÉS</h2>
+      <div class="outils">
+        <input id="q" type="search" placeholder="Rechercher un nom ou un numéro">
+        <select id="f"><option value="tous">Tous</option><option value="oui">Présents</option><option value="rep">Sans réponse</option><option value="non">Absents</option><option value="entre">Déjà entrés</option><option value="attente">Pas encore entrés</option></select>
+      </div>
+      <p id="nb" class="nb"></p>
+      <div class="tab"><table><thead><tr><th>NOM</th><th>CÔTÉ</th><th>TÉLÉPHONE</th><th>PRÉSENCE</th><th>ENTRÉE</th><th></th></tr></thead><tbody id="tb"></tbody></table></div>
+    </section>
+    <section class="card"><h2>APRÈS LA FÊTE</h2>
+      <p class="nb">Télécharge d’abord une sauvegarde Excel, puis efface toutes les fiches de la base (données personnelles).</p>
+      <button id="purge" class="b2 danger">Effacer toutes les données</button></section>
+  </main>
+</div>
+<script src="contenu.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>

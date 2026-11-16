@@ -106,6 +106,12 @@ fieldset{border:0;margin-bottom:22px}
 .verif .petit{color:#e0a98f}
 .verif p+p{margin-bottom:6px}
 .verif .btn{margin-top:30px}
+.verif .statut{display:inline-block;margin-top:18px;padding:10px 16px;font:500 13px 'Cinzel',serif;letter-spacing:.14em;border:1px solid}
+.statut.ok{color:#c5e6c2;border-color:#8dbb8a}.statut.ko{color:#f0b9a3;border-color:#e0a98f}
+.verif form{max-width:320px;margin:20px auto 0}
+.verif input{display:block;width:100%;margin:10px 0;padding:14px;font:400 17px 'Jost',sans-serif;background:var(--creme);color:var(--brun);border:0;border-radius:2px}
+.verif form .btn{margin-top:10px;width:100%}
+#vErr{color:#f0b9a3;min-height:1.4em;margin-top:10px;font-size:15px}
 
 /* ---------- Animations ---------- */
 .rev{opacity:0;transform:translateY(26px);transition:opacity 1.6s var(--lent),transform 1.6s var(--lent)}
@@ -120,3 +126,9 @@ fieldset{border:0;margin-bottom:22px}
   .rev,.mots .m{opacity:1!important;transform:none!important}
   .galerie img{transform:none!important}.trait{transform:none!important}
 }
+
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;opacity:0}
+
+.conf{font-size:13px;line-height:1.5;color:var(--brun-s);margin-bottom:12px}
+
+.salut{font:400 26px/1.2 'Bodoni Moda',serif;text-align:center;margin-bottom:22px}.salut:empty{display:none}

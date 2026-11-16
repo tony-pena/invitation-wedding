@@ -24,7 +24,7 @@ $('map').src = `https://www.google.com/maps?q=${encodeURIComponent(lieu)}&output
 $('itin').href = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(lieu)}`;
 $('tTexte').textContent = C.tenue;
 $('pastilles').innerHTML = C.pastilles.map(p => `<div class="pastille"><i style="background:${p.c}"></i>${p.nom}</div>`).join('');
-$('limite').textContent = C.dateLimite;
+$('limite').textContent = C.dateLimite; $('conf').textContent = C.confidentialite || '';
 const cotes = C.cotes.map(t => t.replace('{1}', C.prenom1).replace('{2}', C.prenom2));
 $('cote').innerHTML = '<option value="">Choisir…</option>' + cotes.map((t,i) => `<option value="${i}">${t}</option>`).join('');
 $('init').textContent = `${C.prenom1[0]} & ${C.prenom2[0]}`; $('hash').textContent = C.hashtag;
@@ -96,9 +96,54 @@ async function enregistrer(id, d){
 async function lire(id){
   const r = await fetch(`${base}/${encodeURIComponent(id)}?key=${FB.apiKey}`);
   if(!r.ok) throw new Error('absent');
-  const f = (await r.json()).fields;
-  return {n:f.n.stringValue, p:f.p.stringValue, t:f.t.stringValue, c:+f.c.integerValue, o:+f.o.integerValue};
+  const doc = await r.json(), f = doc.fields;
+  return {n:f.n.stringValue, p:f.p.stringValue, t:f.t.stringValue, c:+f.c.integerValue, o:+f.o.integerValue,
+          entre:!!(f.entre && f.entre.booleanValue), heure:f.heure ? f.heure.timestampValue : '', maj:doc.updateTime};
 }
+
+/* Contrôle d’entrée (accueil) : un seul passage par code */
+let jeton = null, courant = null;
+try{ const s = JSON.parse(sessionStorage.getItem('accueil') || 'null'); if(s && s.exp > Date.now()) jeton = s.t; }catch(e){}
+function statut(d){
+  const el = $('vStatut'); el.hidden = false;
+  if(d.entre){
+    const h = d.heure ? new Date(d.heure).toLocaleString('fr-FR', {dateStyle:'short', timeStyle:'short'}) : '';
+    el.textContent = `DÉJÀ ENTRÉ · ${h}`; el.className = 'statut ko'; $('vAction').hidden = true;
+  } else {
+    el.textContent = d.o === 1 ? 'PAS ENCORE ENTRÉ' : 'PRÉSENCE NON CONFIRMÉE'; el.className = d.o === 1 ? 'statut ok' : 'statut ko'; $('vAction').hidden = d.o !== 1;
+  }
+}
+async function connexion(email, mdp){
+  const r = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${FB.apiKey}`,
+    {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({email, password:mdp, returnSecureToken:true})});
+  if(!r.ok) throw new Error('auth');
+  const j = await r.json(); jeton = j.idToken;
+  sessionStorage.setItem('accueil', JSON.stringify({t:jeton, exp:Date.now() + (+j.expiresIn - 120) * 1000}));
+}
+async function valider(){
+  const q = `updateMask.fieldPaths=entre&updateMask.fieldPaths=heure&currentDocument.updateTime=${encodeURIComponent(courant.maj)}&key=${FB.apiKey}`;
+  const r = await fetch(`${base}/${encodeURIComponent(idScan)}?${q}`, {method:'PATCH',
+    headers:{'Content-Type':'application/json', 'Authorization':'Bearer ' + jeton},
+    body:JSON.stringify({fields:{entre:{booleanValue:true}, heure:{timestampValue:new Date().toISOString()}}})});
+  if(r.status === 401 || r.status === 403){
+    jeton = null; sessionStorage.removeItem('accueil');
+    $('vLogin').hidden = false; $('vAction').hidden = true; $('vErr').textContent = 'Connexion requise pour l’accueil.'; return;
+  }
+  if(r.ok){
+    const el = $('vStatut'); el.textContent = 'ENTRÉE VALIDÉE ✓'; el.className = 'statut ok'; $('vAction').hidden = true; return;
+  }
+  try{ courant = await lire(idScan); statut(courant); }catch(e){ $('vErr').textContent = 'Erreur, réessayez.'; }
+}
+$('vValider').onclick = () => {
+  $('vErr').textContent = '';
+  if(!jeton){ $('vLogin').hidden = false; $('vAction').hidden = true; return; }
+  valider();
+};
+$('vLogin').addEventListener('submit', async e => {
+  e.preventDefault(); $('vErr').textContent = '';
+  try{ await connexion($('vMail').value.trim(), $('vMdp').value); $('vLogin').hidden = true; $('vMdp').value = ''; await valider(); }
+  catch(x){ $('vErr').textContent = 'E-mail ou mot de passe incorrect.'; }
+});
 
 /* Scan d’un code QR : affichage des informations de l’invité */
 let scan = false;
@@ -107,13 +152,13 @@ const mi = location.hash.match(/^#invite=([\w-]+)$/);
 function remplirVerif(d){
   $('vEtat').textContent = 'Invitation valide';
   $('vNom').textContent = `${d.n} ${d.p}`;
-  $('vInfos').textContent = `${cotes[d.c] || ''} · ${d.o ? 'Présence confirmée' : 'Absence annoncée'}`;
+  $('vInfos').textContent = `${cotes[d.c] || ''} · ${d.o === 1 ? 'Présence confirmée' : d.o === 0 ? 'Absence annoncée' : 'Sans réponse'}`;
   $('vTel').textContent = d.t;
 }
 if(idScan && base){
   scan = true; $('intro').remove(); $('verif').hidden = false;
   $('vEtat').textContent = 'Vérification…'; $('vNom').textContent = '…';
-  lire(idScan).then(remplirVerif).catch(() => {
+  lire(idScan).then(d => { courant = d; remplirVerif(d); statut(d); if(d.o === 1) $('vQr').hidden = false; }).catch(() => {
     $('vEtat').textContent = 'Code non reconnu'; $('vNom').textContent = 'Invitation introuvable'; $('vInfos').textContent = ''; $('vTel').textContent = '';
   });
 } else if(mi){
@@ -164,11 +209,50 @@ async function faireCarte(d, url){
   $('dl').download = ('invitation-' + d.n + '-' + d.p).replace(/[^\wÀ-ÿ-]+/g,'_') + '.png';
 }
 
+/* Liste fermée : chaque invité a un lien personnel ?i=… */
+const idPerso = new URLSearchParams(location.search).get('i');
+let perso = null;
+const cloture = () => C.limiteISO && Date.now() > new Date(C.limiteISO);
+const carteInvite = (d, id) => faireCarte(d, (C.urlSite || location.origin + location.pathname) + '?id=' + id);
+function sans(t){ $('sans').textContent = t; $('sans').hidden = false; $('repP').hidden = true; $('clos').hidden = true; }
+async function repondre(id, o){
+  const r = await fetch(`${base}/${encodeURIComponent(id)}?updateMask.fieldPaths=o&updateMask.fieldPaths=rep&currentDocument.updateTime=${encodeURIComponent(perso.maj)}&key=${FB.apiKey}`,
+    {method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({fields:{o:I(o), rep:{timestampValue:new Date().toISOString()}}})});
+  if(!r.ok) throw new Error('rep');
+}
+if(base && !scan){
+  $('champs').hidden = true;
+  if(!idPerso) sans('Cette invitation est personnelle : utilisez le lien que les mariés vous ont envoyé.');
+  else lire(idPerso).then(async d => {
+    perso = d; $('salut').textContent = `${d.n} ${d.p}`;
+    if(d.o === 2){ if(cloture()) sans('Les réponses sont closes. Merci !'); return; }
+    $('repP').hidden = true; $('clos').hidden = true; $('boite').hidden = false; form.hidden = true;
+    if(d.o === 0) $('merci').hidden = false;
+    else try{ await carteInvite(d, idPerso); $('resultat').hidden = false; }
+    catch(e){ $('merci').textContent = 'Réponse enregistrée. Le code n’a pas pu être affiché : rechargez la page.'; $('merci').hidden = false; }
+  }).catch(() => sans('Lien d’invitation invalide. Contactez les mariés.'));
+}
+
 form.addEventListener('submit', async e => {
   e.preventDefault(); err.textContent = '';
   const f = new FormData(form), g = k => (f.get(k) || '').toString().trim();
+  if(f.get('web')) return;
+  if(base){
+    if(!perso || perso.o !== 2) return;
+    if(!g('pres')){ err.textContent = 'Merci de choisir Oui ou Non.'; return; }
+    const o = g('pres') === 'oui' ? 1 : 0, btn = form.querySelector('[type=submit]'); btn.disabled = true;
+    try{ await repondre(idPerso, o); }
+    catch(x){ err.textContent = 'L’enregistrement a échoué. Vérifiez votre connexion puis réessayez.'; btn.disabled = false; return; }
+    perso.o = o; form.hidden = true;
+    if(!o){ $('merci').hidden = false; return; }
+    try{ await carteInvite(perso, idPerso); $('resultat').hidden = false; }
+    catch(x){ $('merci').textContent = 'Réponse enregistrée. Le code n’a pas pu être créé : rechargez la page.'; $('merci').hidden = false; }
+    return;
+  }
   if(!g('nom') || !g('post') || !g('tel') || g('cote') === '' || !g('pres')){ err.textContent = 'Merci de remplir tous les champs.'; return; }
   if(g('tel').replace(/\D/g,'').length < 8){ err.textContent = 'Le numéro de téléphone semble incomplet.'; return; }
+  { let dernier = 0; try{ dernier = +localStorage.getItem('dernierEnvoi') || 0; }catch(x){}
+    if(Date.now() - dernier < 30000){ err.textContent = 'Patientez quelques secondes avant un nouvel envoi.'; return; } }
   const d = {n:g('nom'), p:g('post'), t:g('tel'), c:+g('cote'), o:g('pres') === 'oui' ? 1 : 0};
   const btn = form.querySelector('[type=submit]'); btn.disabled = true;
   const id = idNouveau();
@@ -178,11 +262,21 @@ form.addEventListener('submit', async e => {
   } else if(C.envoi){
     fetch(C.envoi, {method:'POST', mode:'no-cors', body:JSON.stringify({...d, cote:cotes[d.c], date:new Date().toISOString()})}).catch(() => {});
   }
+  try{ localStorage.setItem('dernierEnvoi', String(Date.now())); }catch(x){}
   if(!d.o){ form.hidden = true; $('merci').hidden = false; return; }
   const url = base ? (C.urlSite || location.origin + location.pathname) + '?id=' + id
                    : location.origin + location.pathname + '#invite=' + encode(d);
   try{ await faireCarte(d, url); form.hidden = true; $('resultat').hidden = false; }
   catch(x){ err.textContent = 'Le code n’a pas pu être créé. Vérifiez votre connexion puis réessayez.'; btn.disabled = false; }
 });
+/* Retrouver son code QR depuis le lien personnel */
+$('vQr').onclick = async () => {
+  try{
+    await faireCarte(courant, (C.urlSite || location.origin + location.pathname) + '?id=' + idScan);
+    $('verif').hidden = true; history.replaceState(null,'',location.pathname); afficherSite();
+    $('boite').hidden = false; form.hidden = true; $('resultat').hidden = false;
+    setTimeout(() => $('resultat').scrollIntoView({behavior: calme ? 'auto' : 'smooth', block:'center'}), 300);
+  }catch(e){ $('vErr').textContent = 'Le code n’a pas pu être créé. Vérifiez votre connexion.'; }
+};
 maj();
 })();
