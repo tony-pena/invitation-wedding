@@ -45,6 +45,9 @@ const CONTENU = {
   indicatif: "243",                           // indicatif de votre pays, pour les liens WhatsApp (sans le +)
   confidentialite: "Vos informations servent uniquement à l’organisation du mariage et seront supprimées après l’événement.",
   messageWhatsapp: "Bonjour {nom}, voici votre invitation au mariage de {1} & {2} : {lien}",
+   indicatif: "243",
+confidentialite: "Vos informations servent uniquement à l’organisation du mariage et seront supprimées après l’événement.",
+messageWhatsapp: "Bonjour {nom}, voici votre invitation au mariage de {1} & {2} : {lien}",
   urlSite: "",                                // adresse publique du site, ex. https://invitation-mariage.vercel.app
   firebase: { apiKey: "AIzaSyD0Gtws8m4P0zQ2cAS3BoIM0nVZYOdgWkI", projectId: "invitatin-wedding" },    // base de données Firebase (voir les explications)
   envoi: ""                                   // (facultatif, sans Firebase) lien qui reçoit la liste des invités
