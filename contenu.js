@@ -43,6 +43,6 @@ const CONTENU = {
   limiteISO: "2027-05-01T23:59:59",           // après cette date, l’enregistrement se ferme
   cotes: ["Famille de {1}", "Famille de {2}", "Amis de {1}", "Amis de {2}", "Autre invité"],
   urlSite: "",                                // adresse publique du site, ex. https://invitation-mariage.vercel.app
-  firebase: { apiKey: "", projectId: "" },    // base de données Firebase (voir les explications)
+  firebase: { apiKey: "AIzaSyD0Gtws8m4P0zQ2cAS3BoIM0nVZYOdgWkI", projectId: "invitatin-wedding" },    // base de données Firebase (voir les explications)
   envoi: ""                                   // (facultatif, sans Firebase) lien qui reçoit la liste des invités
 };
