@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#3A2318">
+<title>Notre mariage</title>
+<meta name="description" content="Invitation à notre mariage">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400;0,500;1,400&family=Cinzel:wght@400;500&family=Jost:wght@300;400;500&family=Pinyon+Script&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="fige">
+
+<div id="intro" role="dialog" aria-label="Invitation">
+  <p class="intro-t">Vous êtes invités</p>
+  <div class="env">
+    <div class="env-dos"></div>
+    <div class="carte"><span class="c-noms" id="cNoms"></span><span class="c-date" id="cDate"></span></div>
+    <div class="env-face"></div>
+    <div class="rabat"></div>
+    <div class="cachet" id="cachet"></div>
+  </div>
+  <button id="ouvrir" class="btn btn-clair">Ouvrir notre invitation</button>
+</div>
+
+<div id="verif" class="verif" hidden>
+  <div><p class="petit" id="vEtat">Invitation valide</p><h3 id="vNom"></h3><p id="vInfos"></p><p id="vTel"></p>
+  <button class="btn btn-clair" id="vOk" type="button">Voir le site</button></div>
+</div>
+
+<main>
+  <header class="hero" id="hero">
+    <div class="hero-in">
+      <p class="petit rev">Nous nous marions</p>
+      <h1 class="noms rev"><span id="n1"></span><span class="et">&amp;</span><span id="n2"></span></h1>
+      <p class="accueil rev" id="accueil"></p>
+      <p class="date-h rev" id="dateH"></p>
+      <div class="compte rev" id="compte" aria-live="off">
+        <div><b id="cj">0</b><span>jours</span></div><div><b id="ch">0</b><span>heures</span></div>
+        <div><b id="cm">0</b><span>minutes</span></div><div><b id="cs">0</b><span>secondes</span></div>
+      </div>
+    </div>
+  </header>
+
+  <section class="sec" id="histoire"><h2 class="mots">Notre histoire</h2>
+    <div class="frise" id="frise"><i class="trait"></i></div></section>
+
+  <section class="sec sable" id="galerie"><h2 class="mots">En images</h2>
+    <div class="galerie" id="galerieBox"></div></section>
+
+  <section class="sec" id="programme"><h2 class="mots">Le programme</h2>
+    <ol class="prog" id="prog"></ol></section>
+
+  <section class="sec brun" id="lieu"><h2 class="mots">Le lieu</h2>
+    <p class="centre rev"><span class="petit" id="lSalle"></span><br><span id="lAdr"></span></p>
+    <div class="carte-g rev"><iframe id="map" title="Carte du lieu" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>
+    <p class="centre rev"><a class="btn btn-clair" id="itin" target="_blank" rel="noopener">Ouvrir l’itinéraire</a></p></section>
+
+  <section class="sec" id="tenue"><h2 class="mots">La tenue</h2>
+    <p class="centre rev" id="tTexte"></p><div class="pastilles rev" id="pastilles"></div></section>
+
+  <section class="sec sable" id="rsvp"><h2 class="mots">Confirmer ma présence</h2>
+    <p class="centre rev">Merci de nous répondre avant le <strong id="limite"></strong>.</p>
+    <p class="centre rev" id="repP"><button class="btn" id="rep" type="button" aria-expanded="false" aria-controls="boite">Je confirme ma présence</button></p>
+    <p class="centre" id="clos" hidden>Les réponses sont closes. Merci !</p>
+    <div id="boite" hidden>
+      <form id="form" novalidate>
+        <label>Nom<input name="nom" autocomplete="family-name" required></label>
+        <label>Post-nom<input name="post" autocomplete="additional-name" required></label>
+        <label>Numéro de téléphone<input name="tel" type="tel" inputmode="tel" autocomplete="tel" required></label>
+        <label>Vous êtes<select name="cote" id="cote" required></select></label>
+        <fieldset><legend>Serez-vous présent(e) ?</legend>
+          <div class="choix">
+            <label><input type="radio" name="pres" value="oui"><span>Oui</span></label>
+            <label><input type="radio" name="pres" value="non"><span>Non</span></label>
+          </div></fieldset>
+        <p id="err" role="alert"></p>
+        <button class="btn" type="submit">Obtenir mon invitation</button>
+      </form>
+      <div id="resultat" class="reuss" hidden>
+        <p class="petit">Votre invitation est prête</p>
+        <img id="qrImg" alt="Code QR de votre invitation">
+        <p><a class="btn" id="dl" download="invitation.png">Télécharger mon invitation</a></p>
+        <p class="astuce">Sur iPhone, vous pouvez aussi garder l’image appuyée pour l’enregistrer.</p>
+      </div>
+      <p id="merci" class="centre" hidden>Merci de nous avoir prévenus. Vous nous manquerez.</p>
+    </div></section>
+
+  <footer class="pied">
+    <p class="rev mots-p">Merci de faire partie de notre histoire</p>
+    <p class="init rev" id="init"></p><p class="petit rev" id="hash"></p>
+  </footer>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
+<script src="contenu.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
